@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>???</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#000;
+    color:#fff;
+}
+header{
+    text-align:center;
+    padding:20px;
+    font-size:22px;
+    font-weight:bold;
+    border-bottom:2px solid red;
+    letter-spacing:3px;
+}
+.container{
+    max-width:500px;
+    margin:auto;
+    padding:20px;
+}
+.card{
+    border:2px solid #222;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    background:#111;
+    transition:0.3s;
+}
+.card:hover{
+    border-color:red;
+    box-shadow:0 0 15px red;
+}
+input, select, button{
+    width:100%;
+    padding:12px;
+    margin-top:12px;
+    border-radius:8px;
+    border:1px solid #333;
+    font-size:14px;
+    background:#000;
+    color:#fff;
+}
+button{
+    background:red;
+    font-weight:bold;
+    cursor:pointer;
+}
+button:hover{
+    background:white;
+    color:red;
+}
+.result{
+    margin-top:15px;
+    padding:12px;
+    border:1px solid red;
+    border-radius:8px;
+    min-height:60px;
+}
+.training-area{
+    width:100%;
+    height:220px;
+    border:2px solid red;
+    margin-top:15px;
+    position:relative;
+    overflow:hidden;
+    background:#000;
+}
+.target{
+    border-radius:50%;
+    position:absolute;
+    cursor:pointer;
+    background:red;
+}
+.hidden{
+    display:none;
+}
+</style>
+</head>
+<body>
+
+<header>???</header>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+<h3>🔒 Acesso</h3>
+<input type="password" id="senha" placeholder="Digite a senha">
+<button onclick="entrar()">Entrar</button>
+<p id="msg"></p>
+</div>
+
+<!-- PAINEL -->
+<div id="painel" class="hidden">
+
+<!-- CONFIG -->
+<div class="card">
+<h3>📱 Configuração</h3>
+<select id="potencia">
+<option value="">Potência</option>
+<option>Fraco</option>
+<option>Médio</option>
+<option>Forte</option>
+</select>
+<select id="estilo">
+<option value="">Estilo</option>
+<option>Rush</option>
+<option>Capa</option>
+<option>Equilibrado</option>
+</select>
+<button onclick="calcular()">Gerar Sensibilidade Inteligente</button>
+<div class="result" id="resultado"></div>
+</div>
+
+<!-- PERFORMANCE -->
+<div class="card">
+<h3>⚡ Performance</h3>
+<button onclick="fps()">Modo FPS</button>
+<button onclick="boost()">Boost</button>
+<div class="result" id="performance"></div>
+</div>
+
+<!-- TREINAMENTO -->
+<div class="card">
+<h3>🎯 GUI de Treinamento</h3>
+<button onclick="startReflex()">Treino de Reflexo</button>
+<button onclick="startPrecision()">Treino de Precisão</button>
+<button onclick="stopTraining()">Parar Treino</button>
+<div class="training-area" id="trainingArea"></div>
+<div class="result" id="score">Acertos: 0 | Recorde: 0</div>
+</div>
+
+<!-- INJETAR JOGO -->
+<div class="card">
+<h3>🎮 Injetar</h3>
+<button onclick="abrirJogo()">ABRA O FREE FIRE</button>
+<div class="result" id="gameMsg"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+// Configurações
+const senhaCorreta="Desconhecidos#$^@????28#>#&";
+let tentativas=0;
+let intervalo;
+let pontos=0;
+let tamanhoAlvoAtual = 40;
+let tempoRestante = 0;
+let recorde = localStorage.getItem("recorde") || 0;
+document.getElementById("score").innerHTML="Acertos: 0 | Recorde: "+recorde;
+
+// LOGIN
+function entrar(){
+    let senha=document.getElementById("senha").value.trim();
+    if(senha===senhaCorreta){
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("painel").classList.remove("hidden");
+    }else{
+        tentativas++;
+        document.getElementById("msg").innerText="Senha incorreta!";
+        if(tentativas>=3){
+            document.getElementById("msg").innerText="Bloqueado por 20 segundos.";
+            document.getElementById("senha").disabled=true;
+            setTimeout(()=>{
+                tentativas=0;
+                document.getElementById("senha").disabled=false;
+                document.getElementById("msg").innerText="";
+            },20000);
+        }
+    }
+}
+
+// SENSI INTELIGENTE ATÉ FICAR PERFEITA
+function calcular(){
+    let potencia=document.getElementById("potencia").value;
+    let estilo=document.getElementById("estilo").value;
+    if(potencia==""||estilo==""){ alert("Preencha tudo."); return; }
+
+    let base=70;
+    if(potencia=="Médio") base=80;
+    if(potencia=="Forte") base=90;
+    if(estilo=="Rush") base+=5;
+    if(estilo=="Capa") base+=10;
+
+    let mensagens=[];
+
+    // Loop de ajuste até ficar na faixa perfeita (82-88)
+    while(base<82 || base>88){
+        if(base>88){
+            base-=2;
+            mensagens.push("⚠ Passando da cabeça → diminuindo 2");
+        } else if(base<82){
+            base+=2;
+            mensagens.push("⚠ Muito dura → aumentando 2");
+        }
+    }
+
+    mensagens.push("✅ Sensi perfeita para controle");
+
+    let dpi=400+(base*2);
+
+    // Tamanho do botão baseado na sensi final
+    if(base >= 86) tamanhoAlvoAtual = 25;
+    else if(base >= 83) tamanhoAlvoAtual = 35;
+    else tamanhoAlvoAtual = 45;
+
+    document.getElementById("resultado").innerHTML=
+    "Geral: "+base+"<br>"+
+    "Red Dot: "+(base-5)+"<br>"+
+    "2x: "+(base-10)+"<br>"+
+    "4x: "+(base-15)+"<br>"+
+    "DPI: "+dpi+"<br>"+
+    "Tamanho do Botão: "+tamanhoAlvoAtual+"px<br><br>"+
+    mensagens.join("<br>");
+}
+
+// PERFORMANCE
+function fps(){
+    document.getElementById("performance").innerHTML=
+    "Modo FPS ativado.<br>Use gráficos médios ou baixos.";
+}
+function boost(){
+    document.getElementById("performance").innerHTML=
+    "Boost aplicado.<br>Feche apps em segundo plano.";
+}
+
+// TREINO
+function criarAlvo(){
+    let area=document.getElementById("trainingArea");
+    area.innerHTML="";
+    let alvo=document.createElement("div");
+    alvo.classList.add("target");
+    alvo.style.width=tamanhoAlvoAtual+"px";
+    alvo.style.height=tamanhoAlvoAtual+"px";
+    let x=Math.random()*(area.clientWidth - tamanhoAlvoAtual);
+    let y=Math.random()*(area.clientHeight - tamanhoAlvoAtual);
+    alvo.style.left=x+"px";
+    alvo.style.top=y+"px";
+    alvo.onclick=function(){
+        pontos++;
+        atualizarScore();
+    };
+    area.appendChild(alvo);
+}
+
+function iniciarTreino(velocidade){
+    clearInterval(intervalo);
+    pontos=0;
+    tempoRestante=30;
+    atualizarScore();
+    intervalo=setInterval(()=>{
+        if(tempoRestante <= 0){
+            clearInterval(intervalo);
+            document.getElementById("trainingArea").innerHTML="";
+            verificarNivel();
+            return;
+        }
+        criarAlvo();
+        tempoRestante--;
+    },velocidade);
+}
+
+function startReflex(){ iniciarTreino(800); }
+function startPrecision(){ iniciarTreino(500); }
+function stopTraining(){
+    clearInterval(intervalo);
+    document.getElementById("trainingArea").innerHTML="";
+}
+
+// SCORE E NÍVEL
+function atualizarScore(){
+    if(pontos > recorde){
+        recorde = pontos;
+        localStorage.setItem("recorde", recorde);
+    }
+    document.getElementById("score").innerHTML=
+    "Acertos: "+pontos+
+    " | Recorde: "+recorde+
+    " | Tempo: "+tempoRestante+"s";
+}
+
+function verificarNivel(){
+    let nivel="Bronze";
+    if(pontos >= 15) nivel="Prata";
+    if(pontos >= 25) nivel="Ouro";
+    if(pontos >= 35) nivel="Mestre";
+    document.getElementById("score").innerHTML+=
+    "<br><br>🏆 Nível alcançado: "+nivel;
+}
+
+// ABRIR JOGO
+function abrirJogo(){
+    document.getElementById("gameMsg").innerHTML="Abra o Free Fire manualmente no seu celular e aplique as configurações.";
+}
+</script>
+
+</body>
+</html>
